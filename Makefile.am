@@ -315,6 +315,14 @@ src_libdrivers_la_SOURCES += \
 	src/hardware/dcttech-usbrelay/protocol.c \
 	src/hardware/dcttech-usbrelay/api.c
 endif
+if HW_DDISCOVERY
+src_libdrivers_la_SOURCES += \
+	src/hardware/ddiscovery/protocol.h \
+	src/hardware/ddiscovery/protocol.c \
+	src/hardware/ddiscovery/fpga.h \
+	src/hardware/ddiscovery/fpga.c \
+	src/hardware/ddiscovery/api.c
+endif
 if HW_DEMO
 src_libdrivers_la_SOURCES += \
 	src/hardware/demo/protocol.h \
