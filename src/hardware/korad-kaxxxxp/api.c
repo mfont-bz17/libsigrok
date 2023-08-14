@@ -74,6 +74,8 @@ static const struct korad_kaxxxxp_model models[] = {
 	{"Tenma", "72-2710", "", 1, volts_30, amps_5, 0},
 	{"Velleman", "LABPS3005D", "", 1, volts_30, amps_5,
 		KORAD_QUIRK_LABPS_OVP_EN},
+	{"Velleman", "PS3005D V1.3", "VELLEMANPS3005DV1.3" , 1, volts_30, amps_5,
+		KORAD_QUIRK_ID_TRAILING | KORAD_QUIRK_SLOW_PROCESSING},
 	{"Velleman", "PS3005D", "", 1, volts_30, amps_5, 0},
 	ALL_ZERO
 };
@@ -310,7 +312,7 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 	sr_dbg("Found: %s %s (idx %zu).", model->vendor, model->name,
 		model - &models[0]);
 
-	sdi = g_malloc0(sizeof(struct sr_dev_inst));
+	sdi = g_malloc0(sizeof(*sdi));
 	sdi->status = SR_ST_INACTIVE;
 	sdi->vendor = g_strdup(model->vendor);
 	sdi->model = g_strdup(model->name);
@@ -323,11 +325,11 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 	sr_channel_new(sdi, 0, SR_CHANNEL_ANALOG, TRUE, "V");
 	sr_channel_new(sdi, 1, SR_CHANNEL_ANALOG, TRUE, "I");
 
-	devc = g_malloc0(sizeof(struct dev_context));
+	devc = g_malloc0(sizeof(*devc));
 	sr_sw_limits_init(&devc->limits);
 	g_mutex_init(&devc->rw_mutex);
 	devc->model = model;
-	devc->req_sent_at = 0;
+	devc->next_req_time = 0;
 	devc->cc_mode_1_changed = FALSE;
 	devc->cc_mode_2_changed = FALSE;
 	devc->output_enabled_changed = FALSE;
@@ -516,7 +518,7 @@ static int dev_acquisition_start(const struct sr_dev_inst *sdi)
 	sr_sw_limits_acquisition_start(&devc->limits);
 	std_session_send_df_header(sdi);
 
-	devc->req_sent_at = 0;
+	devc->next_req_time = 0;
 	serial = sdi->conn;
 	serial_source_add(sdi->session, serial, G_IO_IN,
 			KAXXXXP_POLL_INTERVAL_MS,

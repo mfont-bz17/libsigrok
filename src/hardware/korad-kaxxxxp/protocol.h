@@ -37,7 +37,8 @@ enum korad_quirks_flag {
 	KORAD_QUIRK_ID_NO_VENDOR = 1UL << 1,
 	KORAD_QUIRK_ID_TRAILING = 1UL << 2,
 	KORAD_QUIRK_ID_OPT_VERSION = 1UL << 3,
-	KORAD_QUIRK_ALL = (1UL << 4) - 1,
+	KORAD_QUIRK_SLOW_PROCESSING = 1UL << 4,
+	KORAD_QUIRK_ALL = (1UL << 5) - 1,
 };
 
 /* Information on single model */
@@ -70,7 +71,7 @@ struct dev_context {
 	const struct korad_kaxxxxp_model *model; /**< Model information. */
 
 	struct sr_sw_limits limits;
-	int64_t req_sent_at;
+	int64_t next_req_time;
 	GMutex rw_mutex;
 
 	float current;          /**< Last current value [A] read from device. */
@@ -102,15 +103,15 @@ struct dev_context {
 };
 
 SR_PRIV int korad_kaxxxxp_send_cmd(struct sr_serial_dev_inst *serial,
-					const char *cmd);
+		const char *cmd);
 SR_PRIV int korad_kaxxxxp_read_chars(struct sr_serial_dev_inst *serial,
-					size_t count, char *buf);
+		size_t count, char *buf);
 SR_PRIV int korad_kaxxxxp_set_value(struct sr_serial_dev_inst *serial,
-					int target, struct dev_context *devc);
+		int target, struct dev_context *devc);
 SR_PRIV int korad_kaxxxxp_get_value(struct sr_serial_dev_inst *serial,
-					int target, struct dev_context *devc);
+		int target, struct dev_context *devc);
 SR_PRIV int korad_kaxxxxp_get_all_values(struct sr_serial_dev_inst *serial,
-					struct dev_context *devc);
+		struct dev_context *devc);
 SR_PRIV int korad_kaxxxxp_receive_data(int fd, int revents, void *cb_data);
 
 #endif

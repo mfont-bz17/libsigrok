@@ -295,6 +295,7 @@ SR_DRIVER([Appa 55II], [appa-55ii], [serial_comm])
 SR_DRIVER([Arachnid Labs Re:load Pro], [arachnid-labs-re-load-pro], [serial_comm])
 SR_DRIVER([ASIX SIGMA/SIGMA2], [asix-sigma], [libftdi])
 SR_DRIVER([ASIX OMEGA RTM CLI], [asix-omega-rtm-cli])
+SR_DRIVER([Atorch], [atorch], [serial_comm])
 SR_DRIVER([Atten PPS3xxx], [atten-pps3xxx], [serial_comm])
 SR_DRIVER([BayLibre ACME], [baylibre-acme], [sys_timerfd_h])
 SR_DRIVER([BeagleLogic], [beaglelogic], [sys_mman_h sys_ioctl_h])
@@ -322,6 +323,7 @@ SR_DRIVER([HP 3457A], [hp-3457a])
 SR_DRIVER([HP 3478A], [hp-3478a], [libgpib])
 SR_DRIVER([hp-59306a], [hp-59306a])
 SR_DRIVER([Hung-Chang DSO-2100], [hung-chang-dso-2100], [libieee1284])
+SR_DRIVER([ICStation USBRelay], [icstation-usbrelay], [serial_comm])
 SR_DRIVER([Ikalogic Scanalogic-2], [ikalogic-scanalogic2], [libusb])
 SR_DRIVER([Ikalogic Scanaplus], [ikalogic-scanaplus], [libftdi])
 SR_DRIVER([IPDBG LA], [ipdbg-la])
@@ -428,12 +430,12 @@ sr_have_glibmm=no
 AS_IF([test "x$sr_have_glibmm" != xyes],
 	[SR_PKG_CHECK([glibmm24], [SR_PKGLIBS_CXX], [glibmm-2.4 >= 2.32.0])])
 AS_IF([test "x$sr_have_glibmm24" = xyes],
-	[SR_APPEND([SR_GLIBMM_REQUIRES], [glibmm-2.4>=2.32.0])
+	[SR_APPEND([SR_GLIBMM_REQUIRES], ['glibmm-2.4 >= 2.32.0'])
 	sr_have_glibmm=yes])
 AS_IF([test "x$sr_have_glibmm" != xyes],
 	[SR_PKG_CHECK([glibmm268], [SR_PKGLIBS_CXX], [glibmm-2.68 >= 2.68.0])])
 AS_IF([test "x$sr_have_glibmm268" = xyes],
-	[SR_APPEND([SR_GLIBMM_REQUIRES], [glibmm-2.68>=2.68.0])
+	[SR_APPEND([SR_GLIBMM_REQUIRES], ['glibmm-2.68 >= 2.68.0'])
 	sr_have_glibmm=yes])
 AS_IF([test "x$sr_have_glibmm" = xyes],
 	[AC_SUBST(SR_GLIBMM_REQUIRES)],
@@ -695,6 +697,7 @@ cat >&AS_MESSAGE_FD <<_EOF
 
 libsigrok configuration summary:
  - Package version................. $SR_PACKAGE_VERSION
+ - Version string suffix .......... $SR_PACKAGE_VERSION_STRING_SUFFIX
  - Library ABI version............. $SR_LIB_VERSION
  - Prefix.......................... $prefix
  - Building on..................... $build

@@ -1,7 +1,7 @@
 /*
  * This file is part of the libsigrok project.
  *
- * Copyright (C) 2018-2020 Andreas Sandberg <andreas@sandberg.pp.se>
+ * Copyright (C) 2023 Mathieu Pilato <pilato.mathieu@free.fr>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,50 +17,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBSIGROK_HARDWARE_RDTECH_UM_PROTOCOL_H
-#define LIBSIGROK_HARDWARE_RDTECH_UM_PROTOCOL_H
+#ifndef LIBSIGROK_HARDWARE_ATORCH_PROTOCOL_H
+#define LIBSIGROK_HARDWARE_ATORCH_PROTOCOL_H
 
+#include <glib.h>
 #include <libsigrok/libsigrok.h>
+#include <stdint.h>
+
 #include "libsigrok-internal.h"
 
-#define LOG_PREFIX "rdtech-um"
+#define LOG_PREFIX "atorch"
 
-#define RDTECH_UM_BUFSIZE 256
+#define ATORCH_BUFSIZE	128
 
-enum rdtech_um_model_id {
-	RDTECH_UM24C = 0x0963,
-	RDTECH_UM25C = 0x09c9,
-	RDTECH_UM34C = 0x0d4c,
+struct atorch_device_profile {
+	uint8_t device_type;
+	const char *device_name;
+	const struct atorch_channel_desc *channels;
+	size_t channel_count;
 };
 
-struct rdtech_um_channel_desc {
+struct atorch_channel_desc {
 	const char *name;
 	struct binary_value_spec spec;
 	struct sr_rational scale;
 	int digits;
 	enum sr_mq mq;
 	enum sr_unit unit;
+	enum sr_mqflag flags;
 };
 
-struct rdtech_um_profile {
-	const char *model_name;
-	enum rdtech_um_model_id model_id;
-	const struct rdtech_um_channel_desc *channels;
-	size_t channel_count;
-	gboolean (*csum_ok)(const uint8_t *buf, size_t len);
+enum atorch_msg_type {
+	MSG_REPORT = 0x01,
+	MSG_REPLY = 0x02,
+	MSG_COMMAND = 0x11,
 };
 
 struct dev_context {
-	const struct rdtech_um_profile *profile;
+	const struct atorch_device_profile *profile;
 	struct sr_sw_limits limits;
 	struct feed_queue_analog **feeds;
-	uint8_t buf[RDTECH_UM_BUFSIZE];
-	size_t buflen;
-	int64_t cmd_sent_at;
+	uint8_t buf[ATORCH_BUFSIZE];
+	size_t wr_idx;
+	size_t rd_idx;
 };
 
-SR_PRIV const struct rdtech_um_profile *rdtech_um_probe(struct sr_serial_dev_inst *serial);
-SR_PRIV int rdtech_um_receive_data(int fd, int revents, void *cb_data);
-SR_PRIV int rdtech_um_poll(const struct sr_dev_inst *sdi, gboolean force);
+SR_PRIV int atorch_probe(struct sr_serial_dev_inst *serial, struct dev_context *devc);
+SR_PRIV int atorch_receive_data_callback(int fd, int revents, void *cb_data);
 
 #endif
